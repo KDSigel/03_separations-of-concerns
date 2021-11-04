@@ -41,8 +41,8 @@ describe('03_separation-of-concerns-demo routes', () => {
 
   it('Updates the order in the database', () => {
     return request(app)
-      .update('/api/v1/orders/1')
-      .send({ id: 1, quantity: 11 })
+      .put('/api/v1/orders/1')
+      .send({ quantity: 11 })
       .then(res => {
         expect(res.body).toEqual({
           id: expect.any(String),
@@ -50,5 +50,14 @@ describe('03_separation-of-concerns-demo routes', () => {
         });
       });
   });
+
+  it('deletes the order in the database that matches id', () => {
+    return request(app)
+      .delete('/api/v1/orders/1')
+      .then(res => {
+        expect(res.body).toEqual({});
+      });
+  });
+
 
 });
