@@ -11,7 +11,7 @@ jest.mock('twilio', () => () => ({
 }));
 
 describe('03_separation-of-concerns-demo routes', () => {
-  beforeEach(() => {
+  beforeAll(() => {
     return setup(pool);
   });
 
@@ -27,4 +27,40 @@ describe('03_separation-of-concerns-demo routes', () => {
         });
       });
   });
+
+  it('Responds with order that matches id', () => {
+    return request(app)
+      .get('/api/v1/orders/1')
+      .then(res => {
+        expect(res.body).toEqual({
+          id: expect.any(String),
+          quantity: 10
+        });
+      });
+  });
+
+  it('Updates the order in the database', () => {
+    return request(app)
+      .put('/api/v1/orders/1')
+      .send({ quantity: 11 })
+      .then(res => {
+        expect(res.body).toEqual({
+          id: expect.any(String),
+          quantity: 11
+        });
+      });
+  });
+
+  it('deletes the order in the database that matches id', () => {
+    return request(app)
+      .delete('/api/v1/orders/1')
+      .then(res => {
+        expect(res.body).toEqual({
+          id: expect.any(String),
+          quantity: 11
+        });
+      });
+  });
+
+
 });
