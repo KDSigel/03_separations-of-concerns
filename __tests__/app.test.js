@@ -28,17 +28,6 @@ describe('03_separation-of-concerns-demo routes', () => {
       });
   });
 
-  // it.skip('Responds with an array of all orders', () => {
-  //   return request(app)
-  //     .get('/api/v1/orders')
-  //     .then(res => {
-  //       expect(res.body).toEqual([{
-  //         id: '1',
-  //         quantity: 10
-  //       }]);
-  //     });
-  // });
-
   it('Responds with order that matches id', () => {
     return request(app)
       .get('/api/v1/orders/1')
@@ -46,6 +35,18 @@ describe('03_separation-of-concerns-demo routes', () => {
         expect(res.body).toEqual({
           id: expect.any(String),
           quantity: 10
+        });
+      });
+  });
+
+  it('Updates the order in the database', () => {
+    return request(app)
+      .update('/api/v1/orders/1')
+      .send({ id: 1, quantity: 11 })
+      .then(res => {
+        expect(res.body).toEqual({
+          id: expect.any(String),
+          quantity: 11
         });
       });
   });
