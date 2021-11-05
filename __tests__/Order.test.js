@@ -3,6 +3,8 @@ const twilio = require('twilio');
 const setup = require('../data/setup');
 const request = require('supertest');
 const app = require('../lib/app');
+const OrderService = require('../lib/services/OrderService');
+const Order = require('../lib/models/Order');
 
 jest.mock('twilio', () => () => ({
   messages: {
@@ -10,68 +12,50 @@ jest.mock('twilio', () => () => ({
   }
 }));
 
-describe('03_separation-of-concerns-demo routes', () => {
-  beforeAll(() => {
+describe('test Order.js queries', () => {
+  beforeEach(() => {
     return setup(pool);
   });
 
-  it('creates a new order in our database and sends a text message', () => {
-    return request(app)
-      .post('/api/v1/orders')
-      .send({ quantity: 10 })
-      .then(res => {
-        // expect(createMessage).toHaveBeenCalledTimes(1);
-        expect(res.body).toEqual({
-          id: '1',
-          quantity: 10
-        });
-      });
+  beforeEach(async() => {
+    await OrderService.createOrder(2);
   });
 
-  it('Responds with all orders', () => {
-    return request(app)
-      .get('/api/v1/orders/')
-      .then(res => {
-        expect(res.body).toEqual(expect.arrayContaining([{
-          id: expect.any(String),
-          quantity: expect.any(Number)
-        }]));
-      });
+  it('creating an order', async() => {
+    const order = await Order.insert(10);
+    expect(order).toEqual({
+      id: '2',
+      quantity: 10
+    });
   });
 
-  it('Responds with order that matches id', () => {
-    return request(app)
-      .get('/api/v1/orders/1')
-      .then(res => {
-        expect(res.body).toEqual({
-          id: expect.any(String),
-          quantity: 10
-        });
-      });
+  it('should get item by id', async() => {
+    const order = await Order.getById(1);
+    expect(order).toEqual({ id: '1', quantity: 2 });
   });
 
-  it('Updates the order in the database', () => {
-    return request(app)
-      .put('/api/v1/orders/1')
-      .send({ quantity: 11 })
-      .then(res => {
-        expect(res.body).toEqual({
-          id: expect.any(String),
-          quantity: 11
-        });
-      });
+  it('should get all items', async() => {
+    const order = await Order.getAllOrders();
+    expect(order).toEqual(expect.arrayContaining([{
+      id: expect.any(String),
+      quantity: expect.any(Number)
+    }]));
   });
 
-  it('deletes the order in the database that matches id', () => {
-    return request(app)
-      .delete('/api/v1/orders/1')
-      .then(res => {
-        expect(res.body).toEqual({
-          id: expect.any(String),
-          quantity: 11
-        });
-      });
+  it('should update item by id', async() => {
+    const order = await Order.update(1, 10);
+    expect(order).toEqual({
+      id: '1',
+      quantity: 10
+    });
   });
 
+  it('should delete item by id', async() => {
+    const order = await Order.deleteOrder(1);
+    expect(order).toEqual({
+      id: '1',
+      quantity: 2
+    });
+  });
 
 });
